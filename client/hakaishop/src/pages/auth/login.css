@@ -1,0 +1,211 @@
+.login-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(45deg, #1a1a1a, #4a4a4a);
+  perspective: 1000px;
+}
+
+.login-form {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2rem;
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  transform-style: preserve-3d;
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) rotateX(0) rotateY(0);
+  }
+  50% {
+    transform: translateY(-20px) rotateX(5deg) rotateY(5deg);
+  }
+}
+
+.login-form h2 {
+  color: #ffffff;
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: 2rem;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+  transform-style: preserve-3d;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-group input:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateZ(10px);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+}
+
+.form-group input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.login-button {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 5px;
+  background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+  color: white;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  transform-style: preserve-3d;
+}
+
+.login-button:hover {
+  background: linear-gradient(45deg, #ff8e8e, #ff6b6b);
+  transform: translateZ(5px);
+  box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+}
+
+/* Three.js inspired glow effect */
+.login-form::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, #ff6b6b, #4a90e2, #ff8e8e);
+  border-radius: 12px;
+  z-index: -1;
+  filter: blur(15px);
+  opacity: 0.5;
+  animation: glowAnimation 3s ease-in-out infinite;
+}
+
+@keyframes glowAnimation {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+/* Auth links styling */
+.auth-links {
+  margin-top: 20px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.auth-link {
+  color: #4a90e2;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.3s ease;
+}
+
+.auth-link:hover {
+  color: #ff6b6b;
+}
+
+/* Forgot password link specific styling */
+.auth-links p:last-child {
+  margin-top: 10px;
+  font-size: 0.9rem;
+}
+
+.auth-links p:last-child .auth-link {
+  color: #ff8e8e;
+}
+
+.auth-links p:last-child .auth-link:hover {
+  color: #4a90e2;
+}
+
+/* Animation for links */
+.auth-link {
+  position: relative;
+  display: inline-block;
+}
+
+.auth-link::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  bottom: -2px;
+  left: 0;
+  background: linear-gradient(45deg, #4a90e2, #ff6b6b);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.auth-link:hover::after {
+  transform: scaleX(1);
+}
+/* Close button styling */
+.close-button {
+  padding: 8px;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.8);
+  transition: all 0.3s ease;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 15px;
+  right: 15px;
+}
+
+.close-button:hover {
+  background: rgba(255, 107, 107, 0.2);
+  border-color: #ff6b6b;
+  color: #ff6b6b;
+  transform: rotate(90deg);
+}
+
+.close-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 107, 107, 0.3);
+}
+
+.close-button:active {
+  transform: rotate(90deg) scale(0.95);
+}
+/* Hiệu ứng chuyển đổi */
+.login-form {
+  perspective: 1000px;
+  transform-style: preserve-3d;
+  transition: all 0.6s ease-in-out;
+  transform-origin: center center;
+}
+
+.login-form.switching {
+  transform: scale(1.1);
+  opacity: 0;
+}
+
