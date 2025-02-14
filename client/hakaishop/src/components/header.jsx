@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import Register from "../pages/auth/register";
 import Login from "../pages/auth/login";
-
+import ForgotPassword from "../pages/auth/forgotPass";
+import logo from "../assets/logo.avif";
+import "./header.css";
 
 const Header = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -50,21 +52,51 @@ const Header = () => {
 
       {isModalOpen && (
         <div className="modal">
-          {activeForm === 'login' ? 
+          {activeForm === 'login' ? (
             <Login 
               setIsLoggedIn={setIsLoggedIn} 
               setUser={setUser} 
               setIsModalOpen={setIsModalOpen}
               setActiveForm={setActiveForm}
-            /> : 
+            />
+          ) : activeForm === 'register' ? (
             <Register 
               setIsModalOpen={setIsModalOpen}
               setActiveForm={setActiveForm} 
             />
-          }
-          <button onClick={() => setIsModalOpen(false)}>Đóng</button>
+          ) : (
+            <ForgotPassword
+              setActiveForm={setActiveForm}
+            />
+          )}
         </div>
       )}
+      <div className="header-container">
+        <div className="header-logo">
+          <img src={logo} alt="Logo" />
+          <h1>Hakai Ecommerce</h1>
+        </div>
+        <div className="header-content">
+          <p>Trang chủ</p>
+          <p>Cửa hàng</p>
+          <p>Tin tức</p>
+          <p>Giảm giá</p>
+          <p>Giới thiệu</p>
+        </div>
+        <div className="header-task">
+          <div className="header-icons">
+            <div className="icon-wrapper">
+            <i class="fa-brands fa-facebook-messenger"></i>
+            </div>
+            <div className="icon-wrapper">
+            <i class="fa-solid fa-cart-shopping"></i>
+            </div>
+            <div className="icon-wrapper">
+            <i class="fa-solid fa-user"></i>
+            </div>
+          </div>
+        </div>
+      </div>
     </>
   );
 };

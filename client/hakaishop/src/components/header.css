@@ -1,0 +1,47 @@
+.headerContainer p {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.headerContainer p:hover {
+  color: #007bff;
+  transform: translateY(-2px);
+}
+
+.header-container .header-logo img{
+  width: 40px;
+}
+
+.header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header-container .header-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.header-container .header-logo {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+
+.header-container  h1 {
+    font-size: 1.5rem;
+    color: #333;
+    margin: 0;
+}
+
+.header-icons {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}

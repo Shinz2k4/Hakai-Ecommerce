@@ -32,7 +32,7 @@ const Login = ({ setIsLoggedIn, setUser, setIsModalOpen, setActiveForm }) => {
         setIsLoggedIn(true);
         setUser(data.user);
         setIsModalOpen(false);
-        alert("Đăng nhập thành công!");
+        
         // Reset form
         setFormData({
           emailOrUsername: "",
