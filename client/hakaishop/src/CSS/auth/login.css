@@ -1,3 +1,4 @@
+/* Container */
 .login-container {
   position: fixed;
   top: 0;
@@ -10,25 +11,32 @@
   perspective: 1000px;
 }
 
+/* Form */
 .login-form {
+  width: 400px;
   background: rgba(255, 255, 255, 0.1);
-  padding: 2rem;
+  padding: 2.5rem;
   border-radius: 10px;
   backdrop-filter: blur(10px);
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
   transform-style: preserve-3d;
   animation: float 6s ease-in-out infinite;
+  transition: all 0.6s ease-in-out;
+  transform-origin: center center;
 }
 
+.login-form.switching {
+  transform: scale(1.1);
+  opacity: 0;
+}
+
+/* Float animation */
 @keyframes float {
-  0%, 100% {
-    transform: translateY(0) rotateX(0) rotateY(0);
-  }
-  50% {
-    transform: translateY(-20px) rotateX(5deg) rotateY(5deg);
-  }
+  0%, 100% { transform: translateY(0) rotateX(0) rotateY(0); }
+  50% { transform: translateY(-20px) rotateX(5deg) rotateY(5deg); }
 }
 
+/* Form title */
 .login-form h2 {
   color: #ffffff;
   text-align: center;
@@ -37,7 +45,8 @@
   text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
 }
 
- .login-form .form-group {
+/* Form groups */
+.login-form .form-group {
   margin-bottom: 1.5rem;
   transform-style: preserve-3d;
 }
@@ -64,6 +73,7 @@
   color: rgba(255, 255, 255, 0.7);
 }
 
+/* Login button */
 .login-button {
   width: 100%;
   padding: 12px;
@@ -83,14 +93,11 @@
   box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
 }
 
-/* Three.js inspired glow effect */
+/* Glow effect */
 .login-form::before {
   content: '';
   position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
+  inset: -2px;
   background: linear-gradient(45deg, #1a1a1a, #2c2c2c, #404040);
   border-radius: 12px;
   z-index: -1;
@@ -100,14 +107,11 @@
 }
 
 @keyframes glowAnimation {
-  0%, 100% {
-    opacity: 0.5;
-  }
-  50% {
-    opacity: 0.8;
-  }
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.8; }
 }
-/* Auth links styling */
+
+/* Auth links */
 .auth-links {
   margin-top: 20px;
   text-align: center;
@@ -115,6 +119,8 @@
 }
 
 .auth-link {
+  position: relative;
+  display: inline-block;
   color: #4a90e2;
   cursor: pointer;
   text-decoration: underline;
@@ -123,26 +129,6 @@
 
 .auth-link:hover {
   color: #ff6b6b;
-}
-
-/* Forgot password link specific styling */
-.auth-links p:last-child {
-  margin-top: 10px;
-  font-size: 0.9rem;
-}
-
-.auth-links p:last-child .auth-link {
-  color: #ff8e8e;
-}
-
-.auth-links p:last-child .auth-link:hover {
-  color: #4a90e2;
-}
-
-/* Animation for links */
-.auth-link {
-  position: relative;
-  display: inline-block;
 }
 
 .auth-link::after {
@@ -160,24 +146,39 @@
 .auth-link:hover::after {
   transform: scaleX(1);
 }
-/* Close button styling */
+
+/* Forgot password link */
+.auth-links p:last-child {
+  margin-top: 10px;
+  font-size: 0.9rem;
+}
+
+.auth-links p:last-child .auth-link {
+  color: #ff8e8e;
+}
+
+.auth-links p:last-child .auth-link:hover {
+  color: #4a90e2;
+}
+
+/* Close button */
 .close-button {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 30px;
+  height: 30px;
   padding: 8px;
-  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 50%;
   font-size: 16px;
   color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
   transition: all 0.3s ease;
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: absolute;
-  top: 15px;
-  right: 15px;
 }
 
 .close-button:hover {
@@ -195,16 +196,3 @@
 .close-button:active {
   transform: rotate(90deg) scale(0.95);
 }
-/* Hiệu ứng chuyển đổi */
-.login-form {
-  perspective: 1000px;
-  transform-style: preserve-3d;
-  transition: all 0.6s ease-in-out;
-  transform-origin: center center;
-}
-
-.login-form.switching {
-  transform: scale(1.1);
-  opacity: 0;
-}
-

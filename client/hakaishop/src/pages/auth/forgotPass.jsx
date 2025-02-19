@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./forgotPass.css";
+import "../../CSS/auth/forgotPass.css";
 
 const ForgotPassword = ({ setActiveForm }) => {
   const [email, setEmail] = useState("");
@@ -9,7 +9,7 @@ const ForgotPassword = ({ setActiveForm }) => {
     e.preventDefault();
     
     try {
-      const response = await fetch("http://localhost:5000/api/users/forgot-password", {
+      const response = await fetch("http://localhost:3001/api/users/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),

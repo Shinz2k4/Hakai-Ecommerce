@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./register.css";
+import "../../CSS/auth/register.css";
 
 
 const Register = ({ setActiveForm, setIsModalOpen }) => {
@@ -31,7 +31,7 @@ const Register = ({ setActiveForm, setIsModalOpen }) => {
 
     try {
       // Kết nối đến database users thông qua API endpoint
-      const response = await fetch("http://localhost:5000/api/users/register", {
+      const response = await fetch("http://localhost:3001/api/users/register", {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",

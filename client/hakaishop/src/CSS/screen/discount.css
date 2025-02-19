@@ -1,0 +1,105 @@
+.discount-container {
+  padding: 40px 200px;
+  min-height: 100vh;
+  background-color: #fdfef5;
+}
+
+.discount-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.discount-header h1 {
+  font-size: 36px;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.discount-header p {
+  font-size: 18px;
+  color: #666;
+}
+
+.discount-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 30px;
+  margin-top: 40px;
+}
+
+.discount-card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+
+.discount-card:hover {
+  transform: translateY(-5px);
+}
+
+.discount-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.discount-content {
+  padding: 20px;
+}
+
+.discount-title {
+  font-size: 20px;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.discount-description {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 15px;
+}
+
+.discount-price {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.original-price {
+  font-size: 18px;
+  color: #999;
+  text-decoration: line-through;
+}
+
+.discounted-price {
+  font-size: 24px;
+  color: #00aa0e;
+  font-weight: bold;
+}
+
+.discount-badge {
+  background: #ff4444;
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.discount-button {
+  width: 100%;
+  padding: 12px;
+  background: #00aa0e;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.discount-button:hover {
+  background: #008a0b;
+}
