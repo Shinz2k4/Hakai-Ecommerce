@@ -1,8 +1,9 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../../CSS/auth/register.css";
 
-
-const Register = ({ setActiveForm, setIsModalOpen }) => {
+const Register = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: "",
     firstName: "", 
@@ -30,13 +31,12 @@ const Register = ({ setActiveForm, setIsModalOpen }) => {
     }
 
     try {
-      // Kết nối đến database users thông qua API endpoint
-      const response = await fetch("http://localhost:3001/api/users/register", {
+      const response = await fetch("http://localhost:5000/api/users/register", {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
         },
-        credentials: 'include', // Cho phép gửi cookie
+        credentials: 'include',
         body: JSON.stringify({
           username: formData.username,
           firstName: formData.firstName,
@@ -52,7 +52,6 @@ const Register = ({ setActiveForm, setIsModalOpen }) => {
       
       if (response.ok) {
         alert("Đăng ký thành công!");
-        // Reset form sau khi đăng ký thành công
         setFormData({
           username: "",
           firstName: "",
@@ -63,8 +62,7 @@ const Register = ({ setActiveForm, setIsModalOpen }) => {
           password: "",
           confirmPassword: ""
         });
-        // Chuyển sang form đăng nhập sau khi đăng ký thành công
-        setActiveForm('login');
+        navigate("/login");
       } else {
         alert("Đã xảy ra lỗi: " + data.message);
       }
@@ -73,18 +71,13 @@ const Register = ({ setActiveForm, setIsModalOpen }) => {
     }
   };
 
-  const handleFormChange = (formName) => {
-    setActiveForm(formName);
-    setIsModalOpen(true);
-  };
-
   return (
     <div className="register-container">
       <div className="register-form">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h2>Đăng Ký Tài Khoản</h2>
           <button 
-            onClick={() => setIsModalOpen(false)}
+            onClick={() => navigate("/")}
             className="close-button"
           >
             ✕
@@ -182,7 +175,7 @@ const Register = ({ setActiveForm, setIsModalOpen }) => {
         <div className="auth-links">
           <p>
             Đã có tài khoản?{" "}
-            <span onClick={() => handleFormChange('login')} className="auth-link">
+            <span onClick={() => navigate("/login")} className="auth-link">
               Đăng nhập ngay
             </span>
           </p>

@@ -8,191 +8,59 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  perspective: 1000px;
+  background: linear-gradient(45deg, #1a1a1a, #2c2c2c);
 }
 
 /* Form */
 .login-form {
   width: 400px;
-  background: rgba(255, 255, 255, 0.1);
-  padding: 2.5rem;
-  border-radius: 10px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-  transform-style: preserve-3d;
-  animation: float 6s ease-in-out infinite;
-  transition: all 0.6s ease-in-out;
-  transform-origin: center center;
+  background: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
 }
 
-.login-form.switching {
-  transform: scale(1.1);
-  opacity: 0;
-}
-
-/* Float animation */
-@keyframes float {
-  0%, 100% { transform: translateY(0) rotateX(0) rotateY(0); }
-  50% { transform: translateY(-20px) rotateX(5deg) rotateY(5deg); }
-}
-
-/* Form title */
-.login-form h2 {
-  color: #ffffff;
+.login-header {
   text-align: center;
   margin-bottom: 2rem;
+}
+
+.login-header h2 {
+  color: #333;
   font-size: 2rem;
-  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  margin-bottom: 0.5rem;
+}
+
+.login-header p {
+  color: #666;
+  font-size: 1rem;
 }
 
 /* Form groups */
-.login-form .form-group {
+.form-group {
   margin-bottom: 1.5rem;
-  transform-style: preserve-3d;
 }
 
-.login-form .form-group input {
+.form-group input {
   width: 100%;
   padding: 12px;
-  border: none;
-  border-radius: 5px;
-  background: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
   font-size: 1rem;
-  transition: all 0.3s ease;
+  transition: border-color 0.3s ease;
 }
 
-.login-form .form-group input:focus {
+.form-group input:focus {
   outline: none;
-  background: rgba(255, 255, 255, 0.2);
-  transform: translateZ(10px);
-  box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+  border-color: #4a90e2;
 }
 
-.login-form .form-group input::placeholder {
-  color: rgba(255, 255, 255, 0.7);
-}
-
-/* Login button */
-.login-button {
-  width: 100%;
-  padding: 12px;
-  border: none;
-  border-radius: 5px;
-  background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
-  color: white;
-  font-size: 1.1rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  transform-style: preserve-3d;
-}
-
-.login-button:hover {
-  background: linear-gradient(45deg, #ff8e8e, #ff6b6b);
-  transform: translateZ(5px);
-  box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
-}
-
-/* Glow effect */
-.login-form::before {
-  content: '';
-  position: absolute;
-  inset: -2px;
-  background: linear-gradient(45deg, #1a1a1a, #2c2c2c, #404040);
-  border-radius: 12px;
-  z-index: -1;
-  filter: blur(15px);
-  opacity: 0.5;
-  animation: glowAnimation 3s ease-in-out infinite;
-}
-
-@keyframes glowAnimation {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 0.8; }
-}
-
-/* Auth links */
-.auth-links {
-  margin-top: 20px;
+/* Error message */
+.error-message {
+  color: #ff6b6b;
   text-align: center;
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.auth-link {
-  position: relative;
-  display: inline-block;
-  color: #4a90e2;
-  cursor: pointer;
-  text-decoration: underline;
-  transition: color 0.3s ease;
-}
-
-.auth-link:hover {
-  color: #ff6b6b;
-}
-
-.auth-link::after {
-  content: '';
-  position: absolute;
-  width: 100%;
-  height: 2px;
-  bottom: -2px;
-  left: 0;
-  background: linear-gradient(45deg, #4a90e2, #ff6b6b);
-  transform: scaleX(0);
-  transition: transform 0.3s ease;
-}
-
-.auth-link:hover::after {
-  transform: scaleX(1);
-}
-
-/* Forgot password link */
-.auth-links p:last-child {
-  margin-top: 10px;
-  font-size: 0.9rem;
-}
-
-.auth-links p:last-child .auth-link {
-  color: #ff8e8e;
-}
-
-.auth-links p:last-child .auth-link:hover {
-  color: #4a90e2;
-}
-
-/* Close button */
-.close-button {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  width: 30px;
-  height: 30px;
-  padding: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
-  font-size: 16px;
-  color: rgba(255, 255, 255, 0.8);
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.close-button:hover {
-  background: rgba(255, 107, 107, 0.2);
-  border-color: #ff6b6b;
-  color: #ff6b6b;
-  transform: rotate(90deg);
-}
-
-.close-button:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(255, 107, 107, 0.3);
-}
-
-.close-button:active {
-  transform: rotate(90deg) scale(0.95);
+  margin-bottom: 1rem;
+  padding: 10px;
+  background: rgba(255, 107, 107, 0.1);
+  border-radius: 4px;
 }

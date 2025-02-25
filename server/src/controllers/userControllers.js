@@ -1,4 +1,3 @@
-const mongoose = require('mongoose');
 const asyncHandler = require('express-async-handler');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
@@ -34,7 +33,9 @@ const registerUser = asyncHandler(async (req, res) => {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
-        role: user.role
+        role: user.role,
+        dateOfBirth: user.dateOfBirth,
+        gender: user.gender
       }
     });
   } else {
@@ -42,35 +43,49 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new Error('Lỗi khi đăng ký');
   }
 });
-
-// Đăng nhập user
 const loginUser = asyncHandler(async (req, res) => {
   const { emailOrUsername, password } = req.body;
-  
+
+  // Kiểm tra User model đã được định nghĩa chưa
+  if (!User) {
+    return res.status(500).json({ message: "Lỗi server: User model không tồn tại" });
+  }
+
   // Tìm user theo email hoặc username
   const user = await (await User).findOne({
-    $or: [
-      { email: emailOrUsername },
-      { username: emailOrUsername }
-    ]
+    $or: [{ email: emailOrUsername }, { username: emailOrUsername }]
   });
 
-  if (user && (await user.comparePassword(password))) {
-    res.json({ 
-      token: jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' }),
-      user: {
-        id: user._id,
-        username: user.username,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        role: user.role
-      }
-    });
-  } else {
-    res.status(401);
-    throw new Error('Thông tin đăng nhập không chính xác');
+  // Kiểm tra user có tồn tại và password có đúng không
+  if (!user || !(await user.comparePassword(password))) {
+    return res.status(401).json({ message: "Thông tin đăng nhập không chính xác" });
   }
+
+  // Tạo JWT token
+  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+
+  // Set cookie chứa token
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict", // Bảo vệ CSRF
+    maxAge: 60 * 60 * 1000 // 1 giờ
+  });
+
+  // Trả về dữ liệu user
+  res.json({
+    token, // Vẫn gửi token nếu client muốn lưu vào localStorage
+    user: {
+      id: user._id,
+      username: user.username,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      role: user.role,
+      dateOfBirth: user.dateOfBirth,
+      gender: user.gender
+    }
+  });
 });
 
 // Quên mật khẩu
@@ -152,16 +167,94 @@ const resetPassword = asyncHandler(async (req, res) => {
 
   res.json({ message: 'Mật khẩu đã được đặt lại thành công' });
 });
-
 // Lấy thông tin user profile
 const getUserProfile = asyncHandler(async (req, res) => {
-  const user = await (await User).findById(req.user.id).select('-password');
+  // Kiểm tra xem có req.user không
+  if (!req.user || !req.user._id) {
+    res.status(401);
+    throw new Error('Vui lòng đăng nhập để xem thông tin');
+  }
+
+  const user = await (await User).findById(req.user._id).select('-password');
   if (user) {
-    res.json(user);
+    res.json({
+      id: user._id,
+      username: user.username,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      dateOfBirth: user.dateOfBirth,
+      gender: user.gender,
+      role: user.role
+    });
   } else {
     res.status(404);
     throw new Error('Không tìm thấy user');
   }
 });
 
-module.exports = { registerUser, loginUser, getUserProfile, forgotPassword, resetPassword };
+// Cập nhật thông tin user profile
+const updateUserProfile = asyncHandler(async (req, res) => {
+  const { firstName, lastName, dateOfBirth, gender } = req.body;
+
+  try {
+    // Kiểm tra xem có req.user không
+    if (!req.user || !req.user._id) {
+      res.status(401);
+      throw new Error('Vui lòng đăng nhập để cập nhật thông tin');
+    }
+
+    // Tìm user theo id và đảm bảo đã await User model
+    const user = await (await User).findById(req.user._id);
+
+    if (!user) {
+      res.status(404);
+      throw new Error('Không tìm thấy user');
+    }
+
+    // Validate input data
+    if (!firstName || !lastName || !dateOfBirth || !gender) {
+      res.status(400);
+      throw new Error('Vui lòng điền đầy đủ thông tin');
+    }
+
+    // Validate gender
+    if (!['male', 'female', 'other'].includes(gender)) {
+      res.status(400);
+      throw new Error('Giới tính không hợp lệ');
+    }
+
+    // Validate date format
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(dateOfBirth)) {
+      res.status(400);
+      throw new Error('Định dạng ngày sinh không hợp lệ (YYYY-MM-DD)');
+    }
+
+    // Update user info
+    user.firstName = firstName;
+    user.lastName = lastName;
+    user.dateOfBirth = new Date(dateOfBirth);
+    user.gender = gender;
+
+    // Save and return updated user
+    const updatedUser = await user.save();
+
+    res.json({
+      
+      username: updatedUser.username,
+      email: updatedUser.email,
+      firstName: updatedUser.firstName,
+      lastName: updatedUser.lastName,
+      dateOfBirth: updatedUser.dateOfBirth,
+      gender: updatedUser.gender,
+      role: updatedUser.role
+    });
+
+  } catch (error) {
+    res.status(500);
+    throw new Error(`Lỗi cập nhật thông tin: ${error.message}`);
+  }
+});
+
+module.exports = { registerUser, loginUser, getUserProfile, forgotPassword, resetPassword, updateUserProfile }; 

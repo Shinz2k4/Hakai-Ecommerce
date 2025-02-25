@@ -1,15 +1,17 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../../CSS/auth/forgotPass.css";
 
-const ForgotPassword = ({ setActiveForm }) => {
+const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     try {
-      const response = await fetch("http://localhost:3001/api/users/forgot-password", {
+      const response = await fetch("http://localhost:5000/api/users/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -28,29 +30,37 @@ const ForgotPassword = ({ setActiveForm }) => {
   };
 
   return (
-    <div className="forgot-password-container">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2>Quên mật khẩu?</h2>
-        <button 
-          onClick={() => setActiveForm("login")}
-          className="close-button-forgot"
-        >
-          ✕
-        </button>
+    <div className="forgot-container">
+      <div className="forgot-form">
+        <div className="forgot-header">
+          <h2>Quên mật khẩu?</h2>
+          <p>Nhập email để reset mật khẩu của bạn</p>
+        </div>
+
+        {message && <div className="error-message">{message}</div>}
+
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <input
+              type="email"
+              placeholder="Nhập email của bạn"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          <button type="submit">Gửi yêu cầu</button>
+          
+          <div className="back-to-login">
+            <button className="back-to-login-button"
+              onClick={() => navigate("/login")}
+            >
+              <a>Quay lại đăng nhập</a>
+            </button>
+          </div>
+        </form>
       </div>
-      <p>Nhập email để reset mật khẩu.</p>
-      <form onSubmit={handleSubmit}>
-        <input 
-          type="email" 
-          placeholder="Nhập email của bạn" 
-          value={email} 
-          onChange={(e) => setEmail(e.target.value)}
-          required 
-        />
-        <button type="submit">Gửi</button>
-      </form>
-      {message && <p>{message}</p>}
-      <button onClick={() => setActiveForm("login")}>Quay lại đăng nhập</button>
     </div>
   );
 };

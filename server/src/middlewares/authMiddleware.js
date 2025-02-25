@@ -5,29 +5,37 @@ const User = require('../models/User');
 // Middleware bảo vệ route yêu cầu xác thực
 const protect = asyncHandler(async (req, res, next) => {
   let token;
-
+  
   // Kiểm tra token trong header Authorization
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    console.log("Tìm thấy Bearer token");
     try {
-      // Lấy token từ header
       token = req.headers.authorization.split(' ')[1];
-
-      // Verify token
+      console.log("Token đã tách:", token);
+      // Giải mã token
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      console.log("Token đã được giải mã:", decoded);
 
-      // Lấy thông tin user từ token và gán vào request
-      req.user = await User.findById(decoded.id).select('-password');
+      // Tìm user theo ID từ token
+      const UserModel = await User;
+      const user = await UserModel.findById(decoded.id).select('-password');
+      console.log("User tìm thấy:", user);
+      
+      if (!user) {
+        console.log("Không tìm thấy user");
+        return res.status(401).json({ success: false, message: "User không tồn tại" });
+      }
 
+      req.user = user;
+      console.log("Đã gán user vào request");
       next();
     } catch (error) {
-      res.status(401);
-      throw new Error('Không được phép truy cập, token không hợp lệ');
+      console.error("Lỗi xác thực:", error);
+      res.status(401).json({ success: false, message: "Token không hợp lệ hoặc đã hết hạn" });
     }
-  }
-
-  if (!token) {
-    res.status(401);
-    throw new Error('Không được phép truy cập, không có token');
+  } else {
+    console.log("Không tìm thấy token trong header");
+    res.status(401).json({ success: false, message: "Không có token, quyền truy cập bị từ chối" });
   }
 });
 

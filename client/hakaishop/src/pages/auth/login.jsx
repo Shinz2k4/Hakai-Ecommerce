@@ -1,7 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import AuthContext from "../../context/authContext";
 import "../../CSS/auth/login.css";
 
-const Login = ({ setIsLoggedIn, setUser, setIsModalOpen, setActiveForm }) => {
+const Login = () => {
+  const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
   const [formData, setFormData] = useState({
     emailOrUsername: "",
     password: ""
@@ -18,20 +22,18 @@ const Login = ({ setIsLoggedIn, setUser, setIsModalOpen, setActiveForm }) => {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:3001/api/users/login", {
+      const response = await fetch("http://localhost:5000/api/users/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: 'include', // Thêm credentials để gửi và nhận cookie
         body: JSON.stringify(formData),
       });
       const data = await response.json();
       
       if (response.ok) {
-        // Lưu token vào localStorage
-        localStorage.setItem('userToken', data.token);
-        // Cập nhật trạng thái đăng nhập và thông tin user
-        setIsLoggedIn(true);
-        setUser(data.user);
-        setIsModalOpen(false);
+        // Lưu thông tin user vào context và localStorage
+        login(data); // data sẽ chứa token và thông tin user từ server
+        navigate("/");
         
         // Reset form
         setFormData({
@@ -46,23 +48,13 @@ const Login = ({ setIsLoggedIn, setUser, setIsModalOpen, setActiveForm }) => {
     }
   };
 
-  const handleFormChange = (formName) => {
-    if (!setActiveForm || !setIsModalOpen) {
-      console.error('setActiveForm or setIsModalOpen is not provided');
-      return;
-    }
-    setActiveForm(formName);
-    setIsModalOpen(true);
-  };
-  
-
   return (
     <div className="login-container">
       <div className="login-form">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h2>Đăng Nhập</h2>
           <button 
-            onClick={() => setIsModalOpen(false)}
+            onClick={() => navigate("/")}
             className="close-button"
           >
             ✕
@@ -96,12 +88,12 @@ const Login = ({ setIsLoggedIn, setUser, setIsModalOpen, setActiveForm }) => {
         <div className="auth-links">
           <p>
             Chưa có tài khoản?{" "}
-            <span onClick={() => handleFormChange('register')} className="auth-link">
+            <span onClick={() => navigate("/register")} className="auth-link">
               Đăng ký ngay
             </span>
           </p>
           <p>
-            <span onClick={() => handleFormChange('forgot-password')} className="auth-link">
+            <span onClick={() => navigate("/forgot-password")} className="auth-link">
               Quên mật khẩu?
             </span>
           </p>

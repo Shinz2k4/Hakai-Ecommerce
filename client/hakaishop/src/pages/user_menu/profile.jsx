@@ -1,37 +1,62 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useContext, useEffect } from "react";
+import AuthContext from "../../context/authContext";
 import "../../CSS/user_menu/profile.css";
 
 const Profile = () => {
-  const [user, setUser] = useState({
-    fullName: "",
-    email: "",
-    phone: "",
-    address: "",
-  });
-
+  const { currentUser } = useContext(AuthContext);
   const [isEditing, setIsEditing] = useState(false);
   const [message, setMessage] = useState("");
+  const [user, setUser] = useState({
+    firstName: currentUser?.firstName || "",
+    lastName: currentUser?.lastName || "", 
+    email: currentUser?.email || "",
+    username: currentUser?.username || "",
+    dateOfBirth: currentUser?.dateOfBirth ? new Date(currentUser.dateOfBirth).toISOString().split('T')[0] : "",
+    gender: currentUser?.gender || ""
+  });
 
   useEffect(() => {
-    fetchUserProfile();
-  }, []);
+    const fetchUserProfile = async () => {
+      try {
+        if (!currentUser || !currentUser.token) {
+          setMessage("Vui lòng đăng nhập để xem thông tin");
+          return;
+        }
 
-  const fetchUserProfile = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:3001/api/users/profile", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setUser(data);
+        const response = await fetch("http://localhost:5000/api/users/profile", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${currentUser.token}`,
+          },
+          credentials: "include",
+        });
+
+        if (response.status === 401) {
+          setMessage("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại!");
+          return;
+        }
+
+        const data = await response.json();
+        if (response.ok) {
+          setUser({
+            firstName: data.firstName || "",
+            lastName: data.lastName || "",
+            email: data.email || "",
+            username: data.username || "",
+            dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth).toISOString().split('T')[0] : "",
+            gender: data.gender || ""
+          });
+        } else {
+          setMessage(data.message || "Có lỗi xảy ra khi tải thông tin");
+        }
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+        setMessage("Lỗi kết nối đến máy chủ");
       }
-    } catch (error) {
-      setMessage("Không thể tải thông tin người dùng");
-    }
-  };
+    };
+
+    fetchUserProfile();
+  }, [currentUser]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -44,15 +69,26 @@ const Profile = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:3001/api/users/update-profile", {
+      // Kiểm tra user có đăng nhập không
+      if (!currentUser || !currentUser.token) {
+        setMessage("Vui lòng đăng nhập lại để thực hiện thao tác này");
+        return;
+      }
+
+      const response = await fetch("http://localhost:5000/api/users/profile", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${currentUser?.token}`,  
         },
+        credentials: "include", // Nếu backend dùng cookie để xác thực
         body: JSON.stringify(user),
       });
+
+      if (response.status === 401) {
+        setMessage("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại!");
+        return;
+      }
 
       const data = await response.json();
       if (response.ok) {
@@ -62,6 +98,7 @@ const Profile = () => {
         setMessage(data.message || "Có lỗi xảy ra khi cập nhật");
       }
     } catch (error) {
+      console.error("Error updating profile:", error);
       setMessage("Lỗi kết nối đến máy chủ");
     }
   };
@@ -73,11 +110,32 @@ const Profile = () => {
       
       <form onSubmit={handleSubmit} className="profile-form">
         <div className="form-group">
-          <label>Họ và tên:</label>
+          <label>Tên đăng nhập:</label>
           <input
             type="text"
-            name="fullName"
-            value={user.fullName}
+            name="username"
+            value={user.username}
+            disabled
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Họ:</label>
+          <input
+            type="text"
+            name="firstName"
+            value={user.firstName}
+            onChange={handleInputChange}
+            disabled={!isEditing}
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Tên:</label>
+          <input
+            type="text"
+            name="lastName" 
+            value={user.lastName}
             onChange={handleInputChange}
             disabled={!isEditing}
           />
@@ -94,24 +152,28 @@ const Profile = () => {
         </div>
 
         <div className="form-group">
-          <label>Số điện thoại:</label>
+          <label>Ngày sinh:</label>
           <input
-            type="tel"
-            name="phone"
-            value={user.phone}
+            type="date"
+            name="dateOfBirth"
+            value={user.dateOfBirth}
             onChange={handleInputChange}
             disabled={!isEditing}
           />
         </div>
 
         <div className="form-group">
-          <label>Địa chỉ:</label>
-          <textarea
-            name="address"
-            value={user.address}
+          <label>Giới tính:</label>
+          <select
+            name="gender"
+            value={user.gender}
             onChange={handleInputChange}
             disabled={!isEditing}
-          />
+          >
+            <option value="male">Nam</option>
+            <option value="female">Nữ</option>
+            <option value="other">Khác</option>
+          </select>
         </div>
 
         {!isEditing ? (
@@ -132,7 +194,14 @@ const Profile = () => {
               className="cancel-button"
               onClick={() => {
                 setIsEditing(false);
-                fetchUserProfile();
+                setUser({
+                  firstName: currentUser?.firstName || "",
+                  lastName: currentUser?.lastName || "",
+                  email: currentUser?.email || "",
+                  username: currentUser?.username || "",
+                  dateOfBirth: currentUser?.dateOfBirth ? new Date(currentUser.dateOfBirth).toISOString().split('T')[0] : "",
+                  gender: currentUser?.gender || ""
+                });
               }}
             >
               Hủy

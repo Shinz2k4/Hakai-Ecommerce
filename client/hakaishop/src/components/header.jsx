@@ -1,22 +1,12 @@
-import React, { useState } from "react";
-import Register from "../pages/auth/register";
-import Login from "../pages/auth/login";
-import ForgotPassword from "../pages/auth/forgotPass";
+import { useContext, useState } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import AuthContext from "../context/authContext"; 
 import logo from "../assets/logo.avif";
-import { NavLink } from "react-router-dom";
 import "../CSS/components/header.css";
 
 const Header = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [activeForm, setActiveForm] = useState('login');
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState(null);
-
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    setUser(null);
-    localStorage.removeItem('userToken');
-  };
+  const { isLoggedIn, currentUser, logout } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   return (
     <>
@@ -29,19 +19,13 @@ const Header = () => {
           <div className="authOptions">
             {isLoggedIn ? (
               <>
-                <p>{user?.firstName} {user?.lastName}</p>
-                <p onClick={handleLogout}>Đăng xuất</p>
+                <p>{currentUser?.firstName && currentUser?.lastName ? `${currentUser.firstName} ${currentUser.lastName}` : currentUser?.username}</p>
+                <p onClick={logout}>Đăng xuất</p>
               </>
             ) : (
               <>
-                <p onClick={() => {
-                  setActiveForm('login');
-                  setIsModalOpen(true);
-                }}>Đăng Nhập</p>
-                <p onClick={() => {
-                  setActiveForm('register'); 
-                  setIsModalOpen(true);
-                }}>Đăng Kí</p>
+                <p onClick={() => navigate('/login')}>Đăng Nhập</p>
+                <p onClick={() => navigate('/register')}>Đăng Kí</p>
               </>
             )}
             <p>Vi</p>
@@ -50,27 +34,6 @@ const Header = () => {
         </div>
       </div>
 
-      {isModalOpen && (
-        <div className="modal">
-          {activeForm === 'login' ? (
-            <Login 
-              setIsLoggedIn={setIsLoggedIn} 
-              setUser={setUser} 
-              setIsModalOpen={setIsModalOpen}
-              setActiveForm={setActiveForm}
-            />
-          ) : activeForm === 'register' ? (
-            <Register 
-              setIsModalOpen={setIsModalOpen}
-              setActiveForm={setActiveForm} 
-            />
-          ) : (
-            <ForgotPassword
-              setActiveForm={setActiveForm}
-            />
-          )}
-        </div>
-      )}
       <div className="header-container">
         <div className="header-logo">
           <NavLink to="/">
@@ -87,15 +50,9 @@ const Header = () => {
         </nav>
         <div className="header-task">
           <div className="header-icons">
-            <NavLink to="/mess" className="icon-wrapper">
-              <i className="fa-brands fa-facebook-messenger"></i>
-            </NavLink>
-            <NavLink to="/cart" className="icon-wrapper">
-              <i className="fa-solid fa-cart-shopping"></i>
-            </NavLink>
-            <NavLink to="/profile" className="icon-wrapper">
-              <i className="fa-solid fa-user"></i>
-            </NavLink>
+            <NavLink to="/mess" className="icon-wrapper"><i className="fa-brands fa-facebook-messenger"></i></NavLink>
+            <NavLink to="/cart" className="icon-wrapper"><i className="fa-solid fa-cart-shopping"></i></NavLink>
+            <NavLink to="/profile" className="icon-wrapper"><i className="fa-solid fa-user"></i></NavLink>
           </div>
         </div>
       </div>

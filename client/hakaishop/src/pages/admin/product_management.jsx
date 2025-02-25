@@ -1,190 +1,308 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import '../../CSS/admin/admin.css';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Table, Button, Modal, Form, Input, InputNumber, message, Image } from 'antd';
+import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 
 const ProductManagement = () => {
-  const [products, setProducts] = useState([
-    {
-      id: 1,
-      name: "Sản phẩm 1",
-      price: 500000,
-      category: "Áo",
-      stock: 50,
-      image: "product1.jpg"
-    },
-    {
-      id: 2,
-      name: "Sản phẩm 2", 
-      price: 800000,
-      category: "Quần",
-      stock: 30,
-      image: "product2.jpg"
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [previewImages, setPreviewImages] = useState([]);
+  const [form] = Form.useForm();
+
+  // Fetch products
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("adminToken");
+      const { data } = await axios.get('http://localhost:5000/api/admin/products', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setProducts(data.products);
+    } catch (error) {
+      message.error('Could not load product list');
+    } finally {
+      setLoading(false);
     }
-  ]);
-
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [isAddingProduct, setIsAddingProduct] = useState(false);
-  const [newProduct, setNewProduct] = useState({
-    name: '',
-    price: '',
-    category: '',
-    stock: '',
-    image: ''
-  });
-
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND'
-    }).format(amount);
   };
 
-  const handleAddProduct = () => {
-    setProducts([...products, {
-      id: products.length + 1,
-      ...newProduct,
-      price: Number(newProduct.price),
-      stock: Number(newProduct.stock)
-    }]);
-    setIsAddingProduct(false);
-    setNewProduct({
-      name: '',
-      price: '',
-      category: '',
-      stock: '',
-      image: ''
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  // Convert image to buffer
+  const convertToBuffer = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsArrayBuffer(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
     });
   };
 
-  const handleDeleteProduct = (productId) => {
-    setProducts(products.filter(product => product.id !== productId));
+  // Handle file upload
+  const handleFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    try {
+      // Convert to buffer first
+      const buffer = await convertToBuffer(file);
+      
+      const formData = new FormData();
+      formData.append("file", new Blob([buffer]));
+      formData.append("upload_preset", "hakai_preset");
+
+      const response = await axios.post(
+        "https://api.cloudinary.com/v1_1/do8gfnops/image/upload",
+        formData
+      );
+
+      if (response.data && response.data.secure_url) {
+        setPreviewImages([...previewImages, response.data.secure_url]);
+        console.log(response.data.secure_url);
+      } else {
+        throw new Error("Upload failed");
+      }
+    } catch (error) {
+      message.error('Error uploading image');
+      console.error(error);
+    }
   };
 
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="product-management-container"
-    >
-      <h1>Quản lý sản phẩm</h1>
-      
-      <button 
-        className="add-product-btn"
-        onClick={() => setIsAddingProduct(true)}
-      >
-        Thêm sản phẩm mới
-      </button>
+  // Handle remove image
+  const handleRemoveImage = (index) => {
+    const newPreviewImages = [...previewImages];
+    newPreviewImages.splice(index, 1);
+    setPreviewImages(newPreviewImages);
+  };
 
-      <div className="products-table">
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Tên sản phẩm</th>
-              <th>Giá</th>
-              <th>Danh mục</th>
-              <th>Tồn kho</th>
-              <th>Thao tác</th>
-            </tr>
-          </thead>
-          <tbody>
-            {products.map(product => (
-              <tr key={product.id}>
-                <td>{product.id}</td>
-                <td>{product.name}</td>
-                <td>{formatCurrency(product.price)}</td>
-                <td>{product.category}</td>
-                <td>{product.stock}</td>
-                <td>
-                  <button onClick={() => setSelectedProduct(product)}>Sửa</button>
-                  <button onClick={() => handleDeleteProduct(product.id)}>Xóa</button>
-                </td>
-              </tr>
+  // Handle add/edit product
+  const handleSubmit = async (values) => {
+    try {
+      const token = localStorage.getItem("adminToken");
+      if (!previewImages.length) {
+        message.error('Please upload at least one image');
+        return;
+      }
+
+      const productData = {
+        ...values,
+        images: previewImages.map(url => ({ url, public_id: url.split('/').pop().split('.')[0] }))
+      };
+
+      if (editingProduct) {
+        await axios.put(`http://localhost:5000/api/admin/products/${editingProduct._id}`, productData, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        message.success('Product updated successfully');
+      } else {
+        await axios.post('http://localhost:5000/api/admin/products', productData, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        message.success('Product added successfully');
+      }
+      setModalVisible(false);
+      form.resetFields();
+      setPreviewImages([]);
+      fetchProducts();
+    } catch (error) {
+      message.error('An error occurred');
+    }
+  };
+
+  // Handle delete product
+  const handleDelete = async (id) => {
+    try {
+      const token = localStorage.getItem("adminToken");
+      await axios.delete(`http://localhost:5000/api/admin/products/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      message.success('Product deleted successfully');
+      fetchProducts();
+    } catch (error) {
+      message.error('Could not delete product');
+    }
+  };
+
+  const columns = [
+    { title: 'Product Name', dataIndex: 'name', key: 'name' },
+    { title: 'Price', dataIndex: 'price', key: 'price', render: price => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price) },
+    { title: 'Category', dataIndex: 'category', key: 'category' },
+    { title: 'Stock', dataIndex: 'countInStock', key: 'countInStock' },
+    {
+      title: 'Images', dataIndex: 'images', key: 'images',
+      render: images => (
+        <Image.PreviewGroup>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', maxWidth: '200px' }}>
+            {images?.map((image, index) => (
+              <Image 
+                key={index} 
+                src={image.url} 
+                style={{ 
+                  width: '45px',
+                  height: '45px',
+                  objectFit: 'cover',
+                  borderRadius: '4px',
+                  border: '1px solid #f0f0f0'
+                }} 
+              />
             ))}
-          </tbody>
-        </table>
-      </div>
-
-      {isAddingProduct && (
-        <div className="modal">
-          <div className="product-form">
-            <h2>Thêm sản phẩm mới</h2>
-            <input
-              type="text"
-              placeholder="Tên sản phẩm"
-              value={newProduct.name}
-              onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
-            />
-            <input
-              type="number"
-              placeholder="Giá"
-              value={newProduct.price}
-              onChange={(e) => setNewProduct({...newProduct, price: e.target.value})}
-            />
-            <input
-              type="text"
-              placeholder="Danh mục"
-              value={newProduct.category}
-              onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}
-            />
-            <input
-              type="number"
-              placeholder="Số lượng tồn kho"
-              value={newProduct.stock}
-              onChange={(e) => setNewProduct({...newProduct, stock: e.target.value})}
-            />
-            <input
-              type="text"
-              placeholder="URL hình ảnh"
-              value={newProduct.image}
-              onChange={(e) => setNewProduct({...newProduct, image: e.target.value})}
-            />
-            <div className="button-group">
-              <button onClick={handleAddProduct}>Thêm</button>
-              <button onClick={() => setIsAddingProduct(false)}>Hủy</button>
-            </div>
           </div>
-        </div>
-      )}
+        </Image.PreviewGroup>
+      )
+    },
+    {
+      title: 'Actions', key: 'action',
+      render: (_, record) => (
+        <>
+          <Button type="primary" icon={<EditOutlined />} onClick={() => {
+            setEditingProduct(record);
+            setPreviewImages(record.images?.map(img => img.url) || []);
+            form.setFieldsValue(record);
+            setModalVisible(true);
+          }}>Edit</Button>
+          <Button type="primary" danger icon={<DeleteOutlined />} onClick={() => handleDelete(record._id)} style={{ marginLeft: 8 }}>Delete</Button>
+        </>
+      )
+    }
+  ];
+  return (
+    <div style={{ padding: 24 }}>
+      <Button
+        type="primary"
+        icon={<PlusOutlined />}
+        onClick={() => {
+          setEditingProduct(null);
+          setPreviewImages([]);
+          form.resetFields();
+          setModalVisible(true);
+        }}
+        style={{ marginBottom: 16 }}
+      >
+        Add Product
+      </Button>
 
-      {selectedProduct && (
-        <div className="modal">
-          <div className="product-form">
-            <h2>Chỉnh sửa sản phẩm</h2>
-            <input
-              type="text"
-              value={selectedProduct.name}
-              onChange={(e) => setSelectedProduct({...selectedProduct, name: e.target.value})}
+      <Table
+        columns={columns}
+        dataSource={products}
+        rowKey="_id"
+        loading={loading}
+      />
+
+      <Modal
+        title={editingProduct ? "Edit Product" : "Add Product"}
+        open={modalVisible}
+        onCancel={() => {
+          setModalVisible(false);
+          setPreviewImages([]);
+          form.resetFields();
+        }}
+        footer={null}
+        width={800}
+      >
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={handleSubmit}
+        >
+          <Form.Item
+            name="name"
+            label="Product Name"
+            rules={[{ required: true, message: 'Please enter product name' }]}
+          >
+            <Input />
+          </Form.Item>
+
+          <Form.Item
+            name="description"
+            label="Description"
+            rules={[{ required: true, message: 'Please enter description' }]}
+          >
+            <Input.TextArea />
+          </Form.Item>
+
+          <Form.Item
+            name="price"
+            label="Price"
+            rules={[{ required: true, message: 'Please enter price' }]}
+          >
+            <InputNumber
+              style={{ width: '100%' }}
+              formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+              parser={value => value.replace(/\$\s?|(,*)/g, '')}
             />
+          </Form.Item>
+
+          <Form.Item
+            name="category"
+            label="Category"
+            rules={[{ required: true, message: 'Please select category' }]}
+          >
+            <Input />
+          </Form.Item>
+
+          <Form.Item
+            name="countInStock"
+            label="Stock Quantity"
+            rules={[{ required: true, message: 'Please enter quantity' }]}
+          >
+            <InputNumber min={0} style={{ width: '100%' }} />
+          </Form.Item>
+
+          <Form.Item
+            label="Product Images"
+          >
             <input
-              type="number"
-              value={selectedProduct.price}
-              onChange={(e) => setSelectedProduct({...selectedProduct, price: e.target.value})}
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              style={{ marginBottom: '10px' }}
             />
-            <input
-              type="text"
-              value={selectedProduct.category}
-              onChange={(e) => setSelectedProduct({...selectedProduct, category: e.target.value})}
-            />
-            <input
-              type="number"
-              value={selectedProduct.stock}
-              onChange={(e) => setSelectedProduct({...selectedProduct, stock: e.target.value})}
-            />
-            <div className="button-group">
-              <button onClick={() => {
-                setProducts(products.map(p => 
-                  p.id === selectedProduct.id ? selectedProduct : p
-                ));
-                setSelectedProduct(null);
-              }}>Lưu</button>
-              <button onClick={() => setSelectedProduct(null)}>Hủy</button>
+          </Form.Item>
+
+          {previewImages.length > 0 && (
+            <div style={{ marginBottom: 16 }}>
+              <p>Image Preview:</p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                {previewImages.map((preview, index) => (
+                  <div key={index} style={{ position: 'relative' }}>
+                    <img
+                      src={preview}
+                      alt={`preview-${index}`}
+                      style={{
+                        width: '100px',
+                        height: '100px',
+                        objectFit: 'cover'
+                      }}
+                    />
+                    <Button
+                      type="text"
+                      danger
+                      icon={<DeleteOutlined />}
+                      onClick={() => handleRemoveImage(index)}
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        right: 0,
+                        background: 'rgba(255,255,255,0.8)'
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        </div>
-      )}
-    </motion.div>
+          )}
+
+          <Form.Item>
+            <Button type="primary" htmlType="submit" disabled={previewImages.length === 0}>
+              {editingProduct ? 'Update' : 'Add'}
+            </Button>
+          </Form.Item>
+        </Form>
+      </Modal>
+    </div>
   );
 };
 

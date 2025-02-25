@@ -39,6 +39,15 @@ const connectDB = async () => {
       family: 4
     });
 
+    // Kết nối database admin
+    const adminDb = await mongoose.createConnection(process.env.MONGO_URI_5, {
+      serverSelectionTimeoutMS: 5000,
+      autoIndex: true,
+      maxPoolSize: 10,
+      socketTimeoutMS: 45000,
+      family: 4
+    });
+
     console.log('✅ Đã kết nối thành công tới tất cả các database MongoDB');
 
     // Export các connection để sử dụng ở nơi khác
@@ -46,12 +55,13 @@ const connectDB = async () => {
     mongoose.productsDb = productsDb;
     mongoose.ordersDb = ordersDb;
     mongoose.reviewsDb = reviewsDb;
-
+    mongoose.adminDb = adminDb;
     return {
       usersDb,
       productsDb,
       ordersDb,
-      reviewsDb
+      reviewsDb,
+      adminDb
     };
 
   } catch (error) {

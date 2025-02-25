@@ -1,3 +1,4 @@
+/* Container */
 .register-container {
   position: fixed;
   top: 0;
@@ -7,220 +8,59 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  perspective: 1000px;
+  background: linear-gradient(45deg, #1a1a1a, #2c2c2c);
 }
 
+/* Form */
 .register-form {
-  background: rgba(255, 255, 255, 0.1);
-  padding: 2.5rem;
-  border-radius: 10px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-  transform-style: preserve-3d;
-  animation: float 6s ease-in-out infinite;
-  width: 400px;
+  width: 500px; /* Rộng hơn form đăng nhập */
+  background: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
 }
 
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0) rotateX(0) rotateY(0);
-  }
-  50% {
-    transform: translateY(-20px) rotateX(5deg) rotateY(5deg);
-  }
-}
-
-.register-form h2 {
-  color: #ffffff;
+.register-header {
   text-align: center;
   margin-bottom: 2rem;
+}
+
+.register-header h2 {
+  color: #333;
   font-size: 2rem;
-  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  margin-bottom: 0.5rem;
 }
 
-.form-group {
-  margin-bottom: 1.2rem;
-  transform-style: preserve-3d;
-}
-
-.register-form .form-group input,
- .register-form .form-group select {
-  width: 100%;
-  padding: 10px;
-  border: none;
-  border-radius: 5px;
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
+.register-header p {
+  color: #666;
   font-size: 1rem;
-  transition: all 0.1s ease;
 }
 
-.register-form .form-group input:focus,
-.register-form .form-group select:focus {
-  outline: none;
-  background: rgba(255, 255, 255, 0.2);
-  transform: translateZ(10px);
-  box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+/* Form groups */
+.form-group {
+  margin-bottom: 1.5rem;
 }
 
-.register-form .form-group input::placeholder {
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.register-form .form-group select {
-  cursor: pointer;
-}
-
-.register-form .form-group select option {
-  background: #2a2a2a;
-  color: white;
-}
-
-button[type="submit"] {
+.form-group input {
   width: 100%;
   padding: 12px;
-  border: none;
-  border-radius: 5px;
-  background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
-  color: white;
-  font-size: 1.1rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  transform-style: preserve-3d;
-  margin-top: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
 }
 
-button[type="submit"]:hover {
-  background: linear-gradient(45deg, #ff8e8e, #ff6b6b);
-  transform: translateZ(5px);
-  box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
-}
-
-/* Glow effect */
-.register-form::before {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  background: linear-gradient(45deg, #1a1a1a, #2c2c2c, #404040);
-  border-radius: 12px;
-  z-index: -1;
-  filter: blur(15px);
-  opacity: 0.5;
-  animation: glowAnimation 3s ease-in-out infinite;
-}
-
-@keyframes glowAnimation {
-  0%, 100% {
-    opacity: 0.5;
-  }
-  50% {
-    opacity: 0.8;
-  }
-}
-
-/* Date input styling */
-input[type="date"] {
-  color-scheme: dark;
-}
-
-input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(1);
-  cursor: pointer;
-}
-/* Auth links styling */
-.auth-links {
-  margin-top: 20px;
-  text-align: center;
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.auth-link {
-  color: #4a90e2;
-  cursor: pointer;
-  text-decoration: underline;
-  transition: color 0.3s ease;
-  position: relative;
-  display: inline-block;
-}
-
-.auth-link:hover {
-  color: #ff6b6b;
-}
-
-/* Animation for links */
-.auth-link::after {
-  content: '';
-  position: absolute;
-  width: 100%;
-  height: 2px;
-  bottom: -2px;
-  left: 0;
-  background: linear-gradient(45deg, #4a90e2, #ff6b6b);
-  transform: scaleX(0);
-  transition: transform 0.3s ease;
-}
-
-.auth-link:hover::after {
-  transform: scaleX(1);
-}
-/* Close button styling */
-.close-button {
-  padding: 8px;
-  cursor: pointer;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
-  font-size: 16px;
-  color: rgba(255, 255, 255, 0.8);
-  transition: all 0.3s ease;
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: absolute;
-  top: 15px;
-  right: 15px;
-}
-
-.close-button:hover {
-  background: rgba(255, 107, 107, 0.2);
-  border-color: #ff6b6b;
-  color: #ff6b6b;
-  transform: rotate(90deg);
-}
-
-.close-button:focus {
+.form-group input:focus {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(255, 107, 107, 0.3);
+  border-color: #4a90e2;
 }
 
-.close-button:active {
-  transform: rotate(90deg) scale(0.95);
+/* Error message */
+.error-message {
+  color: #ff6b6b;
+  text-align: center;
+  margin-bottom: 1rem;
+  padding: 10px;
+  background: rgba(255, 107, 107, 0.1);
+  border-radius: 4px;
 }
-/* Hiệu ứng lật */
-.register-form {
-  perspective: 1000px;
-  transform-style: preserve-3d;
-  transition: transform 0.6s;
-}
-
-.register-form.flipped {
-  transform: rotateY(180deg);
-}
-
-.register-form .front,
-.register-form .back {
-  backface-visibility: hidden;
-  position: absolute;
-  width: 100%;
-  height: 100%;
-}
-
-.register-form .back {
-  transform: rotateY(180deg);
-}
-
