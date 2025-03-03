@@ -8,7 +8,39 @@ const initDB = async () => {
 
 const productSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  description: { type: String, required: true }, 
+  description: { 
+    type: String, 
+    required: true,
+    validate: {
+      validator: function(v) {
+        // Basic markdown validation - check for common markdown syntax
+        return /^[\s\S]*(?:\*\*|__|#|>|\[|\]|\(|\)|`|-)[\s\S]*$/.test(v);
+      },
+      message: 'Description must be in markdown format'
+    }
+  },
+  specifications: {
+    type: String,
+    required: true,
+    validate: {
+      validator: function(v) {
+        // Basic markdown validation - check for common markdown syntax
+        return /^[\s\S]*(?:\*\*|__|#|>|\[|\]|\(|\)|`|-)[\s\S]*$/.test(v);
+      },
+      message: 'Specifications must be in markdown format'
+    }
+  },
+  warranty: {
+    type: String,
+    required: true,
+    validate: {
+      validator: function(v) {
+        // Basic markdown validation - check for common markdown syntax
+        return /^[\s\S]*(?:\*\*|__|#|>|\[|\]|\(|\)|`|-)[\s\S]*$/.test(v);
+      },
+      message: 'Warranty must be in markdown format'
+    }
+  },
   price: { type: Number, required: true },
   category: { type: String, required: true },
   countInStock: { type: Number, required: true },

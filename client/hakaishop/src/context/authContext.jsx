@@ -1,4 +1,5 @@
 import { createContext, useState, useEffect } from "react";
+import axios from "axios";
 
 const AuthContext = createContext();
 
@@ -10,17 +11,27 @@ export const AuthProvider = ({ children }) => {
     const token = localStorage.getItem("userToken");
     const userData = localStorage.getItem("userData");
     if (token && userData) {
-      const user = JSON.parse(userData);
-      setIsLoggedIn(true);
-      setCurrentUser({
-        id: user.user.id,
-        username: user.user.username,
-        email: user.user.email,
-        firstName: user.user.firstName,
-        lastName: user.user.lastName,
-        dateOfBirth: user.user.dateOfBirth,
-        gender: user.user.gender,
-        token: token
+      // Verify token validity
+      axios.get("http://localhost:5000/api/auth/verify", {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(() => {
+        const user = JSON.parse(userData);
+        setIsLoggedIn(true);
+        setCurrentUser({
+          id: user.user.id,
+          username: user.user.username,
+          email: user.user.email,
+          firstName: user.user.firstName,
+          lastName: user.user.lastName,
+          dateOfBirth: user.user.dateOfBirth,
+          gender: user.user.gender,
+          token: token
+        });
+      })
+      .catch(() => {
+        // Token is invalid or expired
+        logout();
       });
     }
   }, []);
@@ -47,6 +58,23 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("userToken");
     localStorage.removeItem("userData");
   };
+
+  // Add axios interceptor to handle token expiration
+  useEffect(() => {
+    const interceptor = axios.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response?.status === 401) {
+          logout();
+        }
+        return Promise.reject(error);
+      }
+    );
+
+    return () => {
+      axios.interceptors.response.eject(interceptor);
+    };
+  }, []);
 
   return (
     <AuthContext.Provider value={{ isLoggedIn, currentUser, login, logout }}>

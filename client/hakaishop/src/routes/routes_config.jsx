@@ -16,15 +16,17 @@ import LoginAdmin from "../pages/admin/login_admin"; // Import trang login admin
 import Header from "../components/header";
 import Product from "../pages/screen/product";
 import Orders from "../pages/payments/orders";
+import AppFooter from "../components/footer";
+
 
 const RoutesConfig = () => (
   <Routes>
-    <Route path="/" element={<><Header /><Home /></>} />
-    <Route path="/store" element={<><Header /><Store /></>} />
-    <Route path="/product/:id" element={<><Header /><Product /></>} />
-    <Route path="/news" element={<><Header /><News /></>} />
-    <Route path="/discount" element={<><Header /><Discount /></>} />
-    <Route path="/introduce" element={<><Header /><Introduce /></>} />
+    <Route path="/" element={<><Header /><Home /><AppFooter /></>} />
+    <Route path="/store" element={<><Header /><Store /><AppFooter /></>} />
+    <Route path="/product/:id" element={<><Header /><Product /><AppFooter /></>} />
+    <Route path="/news" element={<><Header /><News /><AppFooter /></>} />
+    <Route path="/discount" element={<><Header /><Discount /><AppFooter /></>} />
+    <Route path="/introduce" element={<><Header /><Introduce /><AppFooter /></>} />
 
     {/* Auth routes */}
     <Route path="/login" element={<><Header /><Login /></>} />
@@ -32,12 +34,12 @@ const RoutesConfig = () => (
     <Route path="/forgot-password" element={<><Header /><ForgotPassword /></>} />
 
     {/* Chỉ truy cập được khi đăng nhập */}
-    <Route path="/cart" element={<ProtectedRoute><Header /><Cart /></ProtectedRoute>} />
-    <Route path="/profile" element={<ProtectedRoute><Header /><Profile /></ProtectedRoute>} />
-    <Route path="/mess" element={<ProtectedRoute><Header /><Messenger /></ProtectedRoute>} />
+    <Route path="/cart" element={<ProtectedRoute><Header /><Cart /><AppFooter /></ProtectedRoute>} />
+    <Route path="/profile" element={<ProtectedRoute><Header /><Profile /><AppFooter /></ProtectedRoute>} />
+    <Route path="/mess" element={<ProtectedRoute><Header /><Messenger /><AppFooter /></ProtectedRoute>} />
 
     {/* Payment routes */}
-    <Route path="/payments/orders" element={<ProtectedRoute><Header /><Orders /></ProtectedRoute>} />
+    <Route path="/payments/orders" element={<ProtectedRoute><Header /><Orders /><AppFooter /></ProtectedRoute>} />
     {/* <Route path="/payment/success" element={<ProtectedRoute><Header /><PaymentSuccess /></ProtectedRoute>} />
     <Route path="/payment/cancel" element={<ProtectedRoute><Header /><PaymentCancel /></ProtectedRoute>} /> */}
 

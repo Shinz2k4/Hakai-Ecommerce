@@ -52,8 +52,13 @@ const updateCartItem = asyncHandler(async (req, res) => {
                 // Xóa sản phẩm khỏi giỏ hàng nếu số lượng <= 0
                 cart.products.splice(itemIndex, 1);
             } else {
-                // Cập nhật số lượng
+                // Cập nhật số lượng và thông tin sản phẩm
                 cart.products[itemIndex].quantity = quantity;
+                cart.products[itemIndex].name = product.name;
+                cart.products[itemIndex].price = product.price;
+                cart.products[itemIndex].images = product.images;
+                cart.products[itemIndex].specifications = product.specifications;
+                cart.products[itemIndex].warranty = product.warranty;
             }
 
             // Tính lại tổng giá

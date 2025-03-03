@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Table, Button, Modal, Form, Input, InputNumber, message, Image, Select } from 'antd';
+import { Table, Button, Modal, Form, Input, InputNumber, message, Image, Select, Tabs } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import ReactMarkdown from 'react-markdown';
+
+const { TabPane } = Tabs;
 
 const ProductManagement = () => {
   const [products, setProducts] = useState([]);
@@ -149,6 +152,16 @@ const ProductManagement = () => {
     { title: 'Danh mục', dataIndex: 'category', key: 'category' },
     { title: 'Số lượng', dataIndex: 'countInStock', key: 'countInStock' },
     {
+      title: 'Thông số kỹ thuật',
+      dataIndex: 'specifications',
+      key: 'specifications',
+      render: specs => (
+        <div style={{maxWidth: 300, maxHeight: 100, overflow: 'auto'}}>
+          <ReactMarkdown>{specs || ''}</ReactMarkdown>
+        </div>
+      )
+    },
+    {
       title: 'Hình ảnh', dataIndex: 'images', key: 'images',
       render: images => (
         <Image.PreviewGroup>
@@ -232,13 +245,43 @@ const ProductManagement = () => {
             <Input />
           </Form.Item>
 
-          <Form.Item
-            name="description"
-            label="Mô tả"
-            rules={[{ required: true, message: 'Vui lòng nhập mô tả' }]}
-          >
-            <Input.TextArea />
-          </Form.Item>
+          <Tabs defaultActiveKey="1">
+            <TabPane tab="Mô tả" key="1">
+              <Form.Item
+                name="description"
+                rules={[{ required: true, message: 'Vui lòng nhập mô tả' }]}
+                help="Hỗ trợ định dạng Markdown. Ví dụ: **in đậm**, *in nghiêng*, ## tiêu đề"
+              >
+                <Input.TextArea rows={6} />
+              </Form.Item>
+            </TabPane>
+            <TabPane tab="Thông số kỹ thuật" key="2">
+              <Form.Item
+                name="specifications"
+                rules={[{ required: true, message: 'Vui lòng nhập thông số kỹ thuật' }]}
+                help="Sử dụng Markdown để liệt kê thông số. Ví dụ:
+                - Điện áp: 220V
+                - Công suất: 1000W
+                - Kích thước: 60x40x30 cm
+                - Trọng lượng: 5kg"
+              >
+                <Input.TextArea rows={6} />
+              </Form.Item>
+            </TabPane>
+            <TabPane tab="Chính sách bảo hành" key="3">
+              <Form.Item
+                name="warranty"
+                rules={[{ required: true, message: 'Vui lòng nhập chính sách bảo hành' }]}
+                help="Sử dụng Markdown để mô tả chính sách bảo hành. Ví dụ:
+                # Chính sách bảo hành
+                ## Thời gian bảo hành
+                - Thời gian bảo hành: 12 tháng
+                - Áp dụng từ ngày mua hàng"
+              >
+                <Input.TextArea rows={6} />
+              </Form.Item>
+            </TabPane>
+          </Tabs>
 
           <Form.Item
             name="price"

@@ -15,6 +15,8 @@ const getProducts = asyncHandler(async (req, res) => {
         _id: product._id,
         name: product.name,
         description: product.description,
+        specifications: product.specifications,
+        warranty: product.warranty,
         price: product.price,
         category: product.category,
         countInStock: product.countInStock,
@@ -37,6 +39,8 @@ const getProductById = asyncHandler(async (req, res) => {
       _id: product._id,
       name: product.name, 
       description: product.description,
+      specifications: product.specifications,
+      warranty: product.warranty,
       price: product.price,
       category: product.category,
       countInStock: product.countInStock,
@@ -47,6 +51,7 @@ const getProductById = asyncHandler(async (req, res) => {
     throw new Error('Không tìm thấy sản phẩm');
   }
 });
+
 const addToCart = asyncHandler(async (req, res) => {
   const { productId, quantity, name, price, images } = req.body;
   const userId = req.user._id;

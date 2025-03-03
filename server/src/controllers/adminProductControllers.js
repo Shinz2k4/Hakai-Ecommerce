@@ -7,8 +7,6 @@ cloudinary.config({
   api_key: process.env.CLOUDINARY_KEY, 
   api_secret: process.env.CLOUDINARY_SECRET
 });
-
-
 // Hàm thêm sản phẩm
 const addProduct = asyncHandler(async (req, res) => {
     // Kiểm tra quyền admin
@@ -17,10 +15,10 @@ const addProduct = asyncHandler(async (req, res) => {
       throw new Error('Không có quyền truy cập');
     }
   
-    const { name, description, price, category, countInStock, images } = req.body;
+    const { name, description, price, category, countInStock, images, specifications, warranty } = req.body;
   
     // Kiểm tra dữ liệu đầu vào
-    if (!name || !description || !price || !category || !countInStock || !images) {
+    if (!name || !description || !price || !category || !countInStock || !images || !specifications || !warranty) {
       res.status(400);
       throw new Error('Vui lòng điền đầy đủ thông tin sản phẩm');
     }
@@ -35,7 +33,7 @@ const addProduct = asyncHandler(async (req, res) => {
       res.status(400);
       throw new Error('Số lượng sản phẩm không hợp lệ');
     }
-  
+
     try {
       const ProductModel = await Product;
       const newProduct = await ProductModel.create({
@@ -44,7 +42,9 @@ const addProduct = asyncHandler(async (req, res) => {
         price: Number(price),
         category: category.trim(),
         countInStock: Number(countInStock),
-        images: images
+        images: images,
+        specifications: specifications.trim(),
+        warranty: warranty.trim()
       });
   
       res.status(201).json({
@@ -56,7 +56,9 @@ const addProduct = asyncHandler(async (req, res) => {
           price: newProduct.price,
           category: newProduct.category,
           countInStock: newProduct.countInStock,
-          images: newProduct.images
+          images: newProduct.images,
+          specifications: newProduct.specifications,
+          warranty: newProduct.warranty
         }
       });
   
@@ -94,7 +96,9 @@ const addProduct = asyncHandler(async (req, res) => {
           price: product.price,
           category: product.category,
           countInStock: product.countInStock,
-          images: product.images
+          images: product.images,
+          specifications: product.specifications,
+          warranty: product.warranty
         }))
       });
     } else {
@@ -114,7 +118,7 @@ const addProduct = asyncHandler(async (req, res) => {
     }
   
     const { id } = req.params;
-    const { name, description, price, category, countInStock, images } = req.body;
+    const { name, description, price, category, countInStock, images, specifications, warranty } = req.body;
   
     const product = await (await Product).findById(id);
   
@@ -129,6 +133,8 @@ const addProduct = asyncHandler(async (req, res) => {
     product.category = category || product.category;
     product.countInStock = countInStock || product.countInStock;
     product.images = images || product.images;
+    product.specifications = specifications || product.specifications;
+    product.warranty = warranty || product.warranty;
   
     const updatedProduct = await product.save();
   
@@ -142,7 +148,9 @@ const addProduct = asyncHandler(async (req, res) => {
           price: updatedProduct.price,
           category: updatedProduct.category,
           countInStock: updatedProduct.countInStock,
-          images: updatedProduct.images
+          images: updatedProduct.images,
+          specifications: updatedProduct.specifications,
+          warranty: updatedProduct.warranty
         }
       });
     } else {
@@ -188,4 +196,3 @@ const addProduct = asyncHandler(async (req, res) => {
     updateProduct,
     deleteProduct
   };
-  

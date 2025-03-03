@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Card, Row, Col, Typography, Button, message, Image, Space, Divider, Tooltip, Select, Input } from 'antd';
 import { ShoppingCartOutlined, HeartOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -271,14 +272,13 @@ const Store = () => {
                           </Text>
                         </Tooltip>
 
-                        <Text type="secondary" style={{ 
-                          display: 'block',
+                        <div style={{ 
                           marginBottom: '8px',
                           height: '40px',
                           overflow: 'hidden'
                         }}>
-                          {product.description}
-                        </Text>
+                          <ReactMarkdown>{product.description}</ReactMarkdown>
+                        </div>
 
                         <div style={{ marginTop: 'auto' }}>
                           <Text strong style={{ fontSize: '18px', color: '#ff4d4f', display: 'block' }}>
@@ -286,9 +286,6 @@ const Store = () => {
                               style: 'currency',
                               currency: 'VND'
                             }).format(product.price)}
-                          </Text>
-                          <Text type="secondary">
-                            Còn lại: {product.countInStock}
                           </Text>
 
                           <Button 
