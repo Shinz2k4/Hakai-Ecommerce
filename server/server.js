@@ -10,7 +10,11 @@ const adminRoutes = require("./src/routes/adminRoutes.js");
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+
+app.listen(process.env.PORT || 5001, () => {
+  console.log("Server is running...");
+});
+
 
 app.use(
   cors({
@@ -33,6 +37,11 @@ connectDB();
 // Routes
 app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
+// Test route
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'Test route working' });
+});
+
 
 app.post("/api/upload", upload.single("image"), async (req, res) => {
   try {
@@ -63,7 +72,3 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`🚀 Server is running on port ${PORT}`);
-});

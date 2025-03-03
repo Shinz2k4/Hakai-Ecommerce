@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Table, Button, Modal, Form, Input, InputNumber, message, Image } from 'antd';
+import { Table, Button, Modal, Form, Input, InputNumber, message, Image, Select } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 
 const ProductManagement = () => {
@@ -10,6 +10,17 @@ const ProductManagement = () => {
   const [editingProduct, setEditingProduct] = useState(null);
   const [previewImages, setPreviewImages] = useState([]);
   const [form] = Form.useForm();
+
+  const categories = [
+    'Bếp từ',
+    'Quạt điện', 
+    'Nồi cơm',
+    'Đèn',
+    'Bình nóng lạnh',
+    'Điều hòa',
+    'Máy giặt',
+    'Tủ lạnh',
+  ];
 
   // Fetch products
   const fetchProducts = async () => {
@@ -127,12 +138,18 @@ const ProductManagement = () => {
   };
 
   const columns = [
-    { title: 'Product Name', dataIndex: 'name', key: 'name' },
-    { title: 'Price', dataIndex: 'price', key: 'price', render: price => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price) },
-    { title: 'Category', dataIndex: 'category', key: 'category' },
-    { title: 'Stock', dataIndex: 'countInStock', key: 'countInStock' },
+    { 
+      title: 'STT', 
+      key: 'index',
+      width: 60,
+      render: (_, __, index) => index + 1
+    },
+    { title: 'Tên sản phẩm', dataIndex: 'name', key: 'name' },
+    { title: 'Giá', dataIndex: 'price', key: 'price', render: price => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price) },
+    { title: 'Danh mục', dataIndex: 'category', key: 'category' },
+    { title: 'Số lượng', dataIndex: 'countInStock', key: 'countInStock' },
     {
-      title: 'Images', dataIndex: 'images', key: 'images',
+      title: 'Hình ảnh', dataIndex: 'images', key: 'images',
       render: images => (
         <Image.PreviewGroup>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', maxWidth: '200px' }}>
@@ -154,7 +171,7 @@ const ProductManagement = () => {
       )
     },
     {
-      title: 'Actions', key: 'action',
+      title: 'Hành động', key: 'action',
       render: (_, record) => (
         <>
           <Button type="primary" icon={<EditOutlined />} onClick={() => {
@@ -162,8 +179,8 @@ const ProductManagement = () => {
             setPreviewImages(record.images?.map(img => img.url) || []);
             form.setFieldsValue(record);
             setModalVisible(true);
-          }}>Edit</Button>
-          <Button type="primary" danger icon={<DeleteOutlined />} onClick={() => handleDelete(record._id)} style={{ marginLeft: 8 }}>Delete</Button>
+          }}>Sửa</Button>
+          <Button type="primary" danger icon={<DeleteOutlined />} onClick={() => handleDelete(record._id)} style={{ marginLeft: 8 }}>Xóa</Button>
         </>
       )
     }
@@ -181,7 +198,7 @@ const ProductManagement = () => {
         }}
         style={{ marginBottom: 16 }}
       >
-        Add Product
+        Thêm sản phẩm
       </Button>
 
       <Table
@@ -192,7 +209,7 @@ const ProductManagement = () => {
       />
 
       <Modal
-        title={editingProduct ? "Edit Product" : "Add Product"}
+        title={editingProduct ? "Sửa sản phẩm" : "Thêm sản phẩm"}
         open={modalVisible}
         onCancel={() => {
           setModalVisible(false);
@@ -209,24 +226,24 @@ const ProductManagement = () => {
         >
           <Form.Item
             name="name"
-            label="Product Name"
-            rules={[{ required: true, message: 'Please enter product name' }]}
+            label="Tên sản phẩm"
+            rules={[{ required: true, message: 'Vui lòng nhập tên sản phẩm' }]}
           >
             <Input />
           </Form.Item>
 
           <Form.Item
             name="description"
-            label="Description"
-            rules={[{ required: true, message: 'Please enter description' }]}
+            label="Mô tả"
+            rules={[{ required: true, message: 'Vui lòng nhập mô tả' }]}
           >
             <Input.TextArea />
           </Form.Item>
 
           <Form.Item
             name="price"
-            label="Price"
-            rules={[{ required: true, message: 'Please enter price' }]}
+            label="Giá"
+            rules={[{ required: true, message: 'Vui lòng nhập giá' }]}
           >
             <InputNumber
               style={{ width: '100%' }}
@@ -237,22 +254,28 @@ const ProductManagement = () => {
 
           <Form.Item
             name="category"
-            label="Category"
-            rules={[{ required: true, message: 'Please select category' }]}
+            label="Danh mục"
+            rules={[{ required: true, message: 'Vui lòng chọn danh mục' }]}
           >
-            <Input />
+            <Select>
+              {categories.map(category => (
+                <Select.Option key={category} value={category}>
+                  {category}
+                </Select.Option>
+              ))}
+            </Select>
           </Form.Item>
 
           <Form.Item
             name="countInStock"
-            label="Stock Quantity"
-            rules={[{ required: true, message: 'Please enter quantity' }]}
+            label="Số lượng"
+            rules={[{ required: true, message: 'Vui lòng nhập số lượng' }]}
           >
             <InputNumber min={0} style={{ width: '100%' }} />
           </Form.Item>
 
           <Form.Item
-            label="Product Images"
+            label="Hình ảnh"
           >
             <input
               type="file"
@@ -264,7 +287,7 @@ const ProductManagement = () => {
 
           {previewImages.length > 0 && (
             <div style={{ marginBottom: 16 }}>
-              <p>Image Preview:</p>
+              <p>Ảnh xem trước:</p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
                 {previewImages.map((preview, index) => (
                   <div key={index} style={{ position: 'relative' }}>
@@ -297,7 +320,7 @@ const ProductManagement = () => {
 
           <Form.Item>
             <Button type="primary" htmlType="submit" disabled={previewImages.length === 0}>
-              {editingProduct ? 'Update' : 'Add'}
+              {editingProduct ? 'Cập nhật' : 'Thêm'}
             </Button>
           </Form.Item>
         </Form>

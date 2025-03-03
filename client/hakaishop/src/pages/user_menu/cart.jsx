@@ -1,112 +1,202 @@
-import React, { useState, useEffect } from "react";
-import "../../CSS/user_menu/cart.css";
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Table, Button, InputNumber, Typography, message, Space, Image, Card, Row, Col } from 'antd';
+import { DeleteOutlined, ShoppingCartOutlined } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
+const { Title } = Typography;
 
 const Cart = () => {
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 1,
-      name: "Sản phẩm 1",
-      price: 100000,
-      quantity: 2,
-      image: "product1.jpg"
-    },
-    {
-      id: 2, 
-      name: "Sản phẩm 2",
-      price: 200000,
-      quantity: 1,
-      image: "product2.jpg"
-    }
-  ]);
+  const [cart, setCart] = useState({
+    _id: '',
+    user: '',
+    products: [],
+    totalPrice: 0,
+    createdAt: '',
+    updatedAt: ''
+  });
+  const [loading, setLoading] = useState(false);
 
-  const [total, setTotal] = useState(0);
+  const fetchCart = async () => {
+    try {
+      const token = localStorage.getItem('userToken');
+      setLoading(true);
+      const response = await axios.get('http://localhost:5000/api/users/cart', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setCart(response.data);
+    } catch (error) {
+      message.error('Không thể tải giỏ hàng');
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    calculateTotal();
-  }, [cartItems]);
+    fetchCart();
+  }, []);
 
-  const calculateTotal = () => {
-    const sum = cartItems.reduce((acc, item) => {
-      return acc + (item.price * item.quantity);
-    }, 0);
-    setTotal(sum);
+  const handleQuantityChange = async (productId, quantity) => {
+    try {
+      const token = localStorage.getItem('userToken');
+      await axios.put('http://localhost:5000/api/users/cart/update', 
+        { productId, quantity },
+        { headers: { Authorization: `Bearer ${token}` }}
+      );
+      fetchCart();
+    } catch (error) {
+      message.error('Không thể cập nhật số lượng');
+      console.error(error);
+    }
+  };
+  const navigate = useNavigate();
+
+  const handleNavigateToOrders = () => {
+    navigate('/payments/orders');
+  };
+  const handleRemoveItem = async (productId) => {
+    try {
+      const token = localStorage.getItem('userToken');
+      await axios.delete(`http://localhost:5000/api/users/cart/${productId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      fetchCart();
+      message.success('Đã xóa sản phẩm khỏi giỏ hàng');
+    } catch (error) {
+      message.error('Không thể xóa sản phẩm');
+      console.error(error);
+    }
   };
 
-  const updateQuantity = (id, newQuantity) => {
-    if (newQuantity < 1) return;
-    
-    setCartItems(cartItems.map(item => 
-      item.id === id ? {...item, quantity: newQuantity} : item
-    ));
+  const handleClearCart = async () => {
+    try {
+      const token = localStorage.getItem('userToken');
+      await axios.delete('http://localhost:5000/api/users/cart', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      fetchCart();
+      message.success('Đã xóa toàn bộ giỏ hàng');
+    } catch (error) {
+      message.error('Không thể xóa giỏ hàng');
+      console.error(error);
+    }
   };
 
-  const removeItem = (id) => {
-    setCartItems(cartItems.filter(item => item.id !== id));
-  };
-
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('vi-VN', { 
-      style: 'currency', 
-      currency: 'VND' 
-    }).format(price);
-  };
+  const columns = [
+    {
+      title: 'Sản phẩm',
+      dataIndex: 'name',
+      key: 'product',
+      render: (_, record) => (
+        <Space>
+          <Image
+            width={100}
+            src={record.images?.[0]?.url}
+            alt={record.name}
+            style={{ borderRadius: '8px' }}
+          />
+          <span style={{ fontWeight: '500' }}>{record.name}</span>
+        </Space>
+      ),
+    },
+    {
+      title: 'Giá',
+      dataIndex: 'price',
+      key: 'price',
+      render: (price) => <span style={{ color: '#ff4d4f', fontWeight: '500' }}>{price?.toLocaleString()}đ</span>,
+    },
+    {
+      title: 'Số lượng',
+      dataIndex: 'quantity',
+      key: 'quantity',
+      render: (quantity, record) => (
+        <InputNumber
+          min={1}
+          value={quantity}
+          onChange={(value) => handleQuantityChange(record.product, value)}
+          style={{ width: '80px' }}
+        />
+      ),
+    },
+    {
+      title: 'Tổng',
+      key: 'total',
+      render: (_, record) => (
+        <span style={{ color: '#ff4d4f', fontWeight: '500' }}>
+          {(record.price * record.quantity).toLocaleString()}đ
+        </span>
+      ),
+    },
+    {
+      title: 'Thao tác',
+      key: 'action',
+      render: (_, record) => (
+        <Button
+          type="text"
+          danger
+          icon={<DeleteOutlined />}
+          onClick={() => handleRemoveItem(record.product)}
+        />
+      ),
+    },
+  ];
 
   return (
-    <div className="cart-container">
-      <h1>Giỏ hàng của bạn</h1>
+    <div style={{ padding: '24px', background: '#f5f5f5', minHeight: '100vh' }}>
 
-      {cartItems.length === 0 ? (
-        <div className="empty-cart">
-          <p>Giỏ hàng trống</p>
-          <button onClick={() => window.location.href='/store'}>
-            Tiếp tục mua sắm
-          </button>
-        </div>
-      ) : (
-        <>
-          <div className="cart-items">
-            {cartItems.map(item => (
-              <div key={item.id} className="cart-item">
-                <img src={item.image} alt={item.name} />
-                <div className="item-details">
-                  <h3>{item.name}</h3>
-                  <p className="price">{formatPrice(item.price)}</p>
-                  <div className="quantity-controls">
-                    <button onClick={() => updateQuantity(item.id, item.quantity - 1)}>-</button>
-                    <span>{item.quantity}</span>
-                    <button onClick={() => updateQuantity(item.id, item.quantity + 1)}>+</button>
-                  </div>
-                </div>
-                <div className="item-total">
-                  <p>{formatPrice(item.price * item.quantity)}</p>
-                  <button onClick={() => removeItem(item.id)} className="remove-button">
-                    <i className="fa-solid fa-trash"></i>
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+      <Card>
+        <Row justify="space-between" align="middle" style={{ marginBottom: '20px' }}>
+          <Col>
+            <Title level={2} style={{ margin: 0 }}>
+              <ShoppingCartOutlined /> Giỏ hàng của bạn
+            </Title>
+          </Col>
+          <Col>
+            <Button 
+              type="primary" 
+              danger
+              icon={<DeleteOutlined />}
+              onClick={handleClearCart}
+              disabled={!cart.products?.length}
+            >
+              Xóa tất cả
+            </Button>
+          </Col>
+        </Row>
 
-          <div className="cart-summary">
-            <div className="summary-details">
-              <h3>Tổng giỏ hàng</h3>
-              <div className="summary-row">
-                <span>Tạm tính:</span>
-                <span>{formatPrice(total)}</span>
-              </div>
-              <div className="summary-row">
-                <span>Phí vận chuyển:</span>
-                <span>Miễn phí</span>
-              </div>
-              <div className="summary-row total">
-                <span>Tổng cộng:</span>
-                <span>{formatPrice(total)}</span>
-              </div>
-            </div>
-            <button className="checkout-button">Thanh toán</button>
-          </div>
-        </>
-      )}
+        <Table
+          loading={loading}
+          columns={columns}
+          dataSource={cart.products}
+          rowKey={(record) => record._id}
+          pagination={false}
+          bordered
+          summary={() => (
+            <Table.Summary>
+              <Table.Summary.Row>
+                <Table.Summary.Cell index={0} colSpan={3}>
+                  <strong>Tổng tiền</strong>
+                </Table.Summary.Cell>
+                <Table.Summary.Cell index={1}>
+                  <strong style={{ color: '#ff4d4f', fontSize: '18px' }}>
+                    {cart.totalPrice?.toLocaleString()}đ
+                  </strong>
+                </Table.Summary.Cell>
+                <Table.Summary.Cell index={2} />
+              </Table.Summary.Row>
+            </Table.Summary>
+          )}
+        />
+        <Button 
+          type="primary"
+          danger
+          icon={<ShoppingCartOutlined />}
+          onClick={handleNavigateToOrders}
+          disabled={!cart.products?.length}
+        >
+          Đặt hàng
+        </Button>
+      </Card>
     </div>
   );
 };

@@ -8,18 +8,20 @@ import Cart from "../pages/user_menu/cart";
 import Profile from "../pages/user_menu/profile";
 import Messenger from "../pages/user_menu/mess";
 import Admin from "../pages/admin/admin";
-import ProtectedRoute from "../components/protected_route";
-import AdminRoute from "../components/admin_route"; // Thêm AdminRoute component
+import ProtectedRoute from "./protected_route";
 import Login from "../pages/auth/login";
 import Register from "../pages/auth/register";
 import ForgotPassword from "../pages/auth/forgotPass";
 import LoginAdmin from "../pages/admin/login_admin"; // Import trang login admin
 import Header from "../components/header";
+import Product from "../pages/screen/product";
+import Orders from "../pages/payments/orders";
 
 const RoutesConfig = () => (
   <Routes>
     <Route path="/" element={<><Header /><Home /></>} />
     <Route path="/store" element={<><Header /><Store /></>} />
+    <Route path="/product/:id" element={<><Header /><Product /></>} />
     <Route path="/news" element={<><Header /><News /></>} />
     <Route path="/discount" element={<><Header /><Discount /></>} />
     <Route path="/introduce" element={<><Header /><Introduce /></>} />
@@ -33,6 +35,11 @@ const RoutesConfig = () => (
     <Route path="/cart" element={<ProtectedRoute><Header /><Cart /></ProtectedRoute>} />
     <Route path="/profile" element={<ProtectedRoute><Header /><Profile /></ProtectedRoute>} />
     <Route path="/mess" element={<ProtectedRoute><Header /><Messenger /></ProtectedRoute>} />
+
+    {/* Payment routes */}
+    <Route path="/payments/orders" element={<ProtectedRoute><Header /><Orders /></ProtectedRoute>} />
+    {/* <Route path="/payment/success" element={<ProtectedRoute><Header /><PaymentSuccess /></ProtectedRoute>} />
+    <Route path="/payment/cancel" element={<ProtectedRoute><Header /><PaymentCancel /></ProtectedRoute>} /> */}
 
     {/* Admin routes */}
     <Route path="/admin/login" element={<LoginAdmin />} />

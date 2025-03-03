@@ -2,13 +2,13 @@ const mongoose = require('mongoose');
 const connectDB = require('../config/db');
 
 const initDB = async () => {
-  const { productsDb } = await connectDB();
+  const { productsDb } = await connectDB(); // Get products database connection
   return productsDb;
 };
 
 const productSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  description: { type: String, required: true },
+  description: { type: String, required: true }, 
   price: { type: Number, required: true },
   category: { type: String, required: true },
   countInStock: { type: Number, required: true },

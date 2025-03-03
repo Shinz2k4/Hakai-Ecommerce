@@ -8,13 +8,11 @@ const protect = asyncHandler(async (req, res, next) => {
   
   // Kiểm tra token trong header Authorization
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-    console.log("Tìm thấy Bearer token");
+
     try {
       token = req.headers.authorization.split(' ')[1];
-      console.log("Token đã tách:", token);
       // Giải mã token
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      console.log("Token đã được giải mã:", decoded);
 
       // Tìm user theo ID từ token
       const UserModel = await User;
@@ -27,10 +25,8 @@ const protect = asyncHandler(async (req, res, next) => {
       }
 
       req.user = user;
-      console.log("Đã gán user vào request");
       next();
     } catch (error) {
-      console.error("Lỗi xác thực:", error);
       res.status(401).json({ success: false, message: "Token không hợp lệ hoặc đã hết hạn" });
     }
   } else {
